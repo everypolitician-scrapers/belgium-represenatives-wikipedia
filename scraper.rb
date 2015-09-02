@@ -16,14 +16,18 @@ class String
   end
 end
 
+@MONTHS = %w(0 1 2 3 april mei 6 juli 8 9 oktober 11 12)
+def date_from(str)
+  d, m, y = str.split(/ /)
+  return "%d-%02d-%02d" % [y, @MONTHS.find_index(m), d]
+end
+
 def noko_for(url)
   Nokogiri::HTML(open(url).read)
-  # Nokogiri::HTML(open(url).read, nil, 'utf-8')
 end
 
 def scrape_list(url)
   noko = noko_for(url)
-  binding.pry
   noko.xpath('//h2[contains(.,"Lijst van volksvertegenwoordigers")]/following-sibling::table[1]/tr[td]').each do |tr|
     tds = tr.css('td')
     data = { 
@@ -35,8 +39,19 @@ def scrape_list(url)
       term: '54',
       source: url,
     }
-    puts data
-    # ScraperWiki.save_sqlite([:wikiname__nl, :term], data)
+
+    if tds[4] && tds[4].text.tidy.include?('vervangt vanaf')
+      date = date_from(tds[4].text[/vervangt vanaf (\d+ \w+ \d+)/, 1])
+      who = tds[4].css('a').first
+      replaced = data.merge({
+        name: who.text,
+        wikiname__nl: who.attr('title'),
+        end_date: date,
+      })
+      data[:start_date] = date
+      ScraperWiki.save_sqlite([:wikiname__nl, :term], replaced)
+    end
+    ScraperWiki.save_sqlite([:wikiname__nl, :term], data)
   end
 end
 
