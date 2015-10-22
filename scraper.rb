@@ -16,10 +16,10 @@ class String
   end
 end
 
-@MONTHS = %w(0 1 2 3 april mei 6 juli 8 9 oktober 11 12)
+@MONTHS = %w(0 1 2 3 april mei 6 juli 8 september oktober 11 12)
 def date_from(str)
   d, m, y = str.split(/ /)
-  return "%d-%02d-%02d" % [y, @MONTHS.find_index(m), d]
+  return "%d-%02d-%02d" % [y, @MONTHS.find_index(m), d] 
 end
 
 def noko_for(url)
@@ -28,7 +28,9 @@ end
 
 def scrape_list(url)
   noko = noko_for(url)
-  noko.xpath('//h2[contains(.,"Lijst van volksvertegenwoordigers")]/following-sibling::table[1]/tr[td]').each do |tr|
+  rows = noko.xpath('//h2[contains(.,"Lijst van volksvertegenwoordigers")]/following-sibling::table[1]/tr[td]')
+  abort "No rows" if rows.empty?
+  rows.each do |tr|
     tds = tr.css('td')
     data = { 
       name: tds[0].css('a').text,
