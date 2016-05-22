@@ -16,11 +16,15 @@ class String
   end
 end
 
-@MONTHS = %w(0 1 2 3 april mei 6 juli 8 september oktober 11 12)
+@MONTHS = %w(0 1 2 3 april mei juni juli 8 september oktober 11 12)
 def date_from(str)
   d, m, y = str.split(/ /)
   return "%d-%02d-%02d" % [y, @MONTHS.find_index(m), d] 
 end
+
+WILMES = { name: 'Sophie Wilmès', wikiname__nl: 'Sophie Wilmès', start_date: '2014-10-11', end_date: '2015-09-22' }
+REYNDERS = { name: 'Didier Reynders', wikiname__nl: 'Didier Reynders', end_date: '2014-10-11' }
+WILRYCX = { name: 'Frank Wilrycx', wikiname__nl: 'Frank Wilrycx', start_date: '2014-07-25', end_date: '2016-04-29' }
 
 def noko_for(url)
   Nokogiri::HTML(open(url).read)
@@ -37,23 +41,41 @@ def scrape_list(url)
       wikiname__nl: tds[0].css('a/@title').text,
       party: tds[1].text.tidy,
       area: tds[2].text.tidy,
-      taalgroep: tds[3].text.tidy,
+      language_group: tds[3].text.tidy,
       term: '54',
+      start_date: '2014-06-19',
       source: url,
     }
 
-    if tds[4] && tds[4].text.tidy.include?('vervangt vanaf')
-      date = date_from(tds[4].text[/vervangt vanaf (\d+ \w+ \d+)/, 1])
-      who = tds[4].css('a').first
-      replaced = data.merge({
-        name: who.text,
-        wikiname__nl: who.attr('title'),
-        end_date: date,
-      })
-      data[:start_date] = date
-      ScraperWiki.save_sqlite([:wikiname__nl, :term], replaced)
+    if tds[4] && !(notes = tds[4].text.tidy).empty?
+      if notes.include? 'vervangt vanaf 22 september 2015 Sophie Wilmès, die in opvolging minister werd in de regering-Michel. Wilmès zelf verving vanaf 11 oktober 2014 Didier Reynders, die minister in de regering-Michel geworden was'
+        wilmes = data.merge(WILMES)
+        reynders = data.merge(REYNDERS)
+        data[:start_date] = wilmes[:end_date]
+        ScraperWiki.save_sqlite([:wikiname__nl, :term, :start_date], wilmes)
+        ScraperWiki.save_sqlite([:wikiname__nl, :term, :start_date], reynders)
+      elsif notes.include? 'werd van 25 juli 2014 tot 29 april 2016 als minister in de regering-Bourgeois vervangen door Frank Wilrycx'
+        wilryxc = data.merge(WILRYCX)
+        turtelboom_first = data.clone.merge(end_date: wilryxc[:start_date])
+        data[:start_date] = wilryxc[:end_date]
+        ScraperWiki.save_sqlite([:wikiname__nl, :term, :start_date], wilryxc)
+        ScraperWiki.save_sqlite([:wikiname__nl, :term, :start_date], turtelboom_first)
+
+      elsif notes.include?('vervangt vanaf')
+        date = date_from(notes[/vervangt vanaf (\d+ \w+ \d+)/, 1]) or raise binding.pry
+        who = tds[4].css('a').first
+        replaced = data.merge({
+          name: who.text,
+          wikiname__nl: who.attr('title'),
+        })
+        data[:start_date] = replaced[:end_date] = date
+        ScraperWiki.save_sqlite([:wikiname__nl, :term, :start_date], replaced)
+      else
+        warn "Unparsed notes: #{notes}"
+      end
     end
-    ScraperWiki.save_sqlite([:wikiname__nl, :term], data)
+
+    ScraperWiki.save_sqlite([:wikiname__nl, :term, :start_date], data)
   end
 end
 
