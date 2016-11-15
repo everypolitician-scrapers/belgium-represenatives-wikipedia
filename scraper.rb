@@ -19,12 +19,13 @@ end
 @MONTHS = %w(0 1 2 3 april mei juni juli 8 september oktober 11 12)
 def date_from(str)
   d, m, y = str.split(/ /)
-  return "%d-%02d-%02d" % [y, @MONTHS.find_index(m), d] 
+  return "%d-%02d-%02d" % [y, @MONTHS.find_index(m), d]
 end
 
-WILMES = { name: 'Sophie Wilmès', wikiname__nl: 'Sophie Wilmès', start_date: '2014-10-11', end_date: '2015-09-22' }
+# Hard-code some hard-to-parse mid-term changes
+WILMES =   { name: 'Sophie Wilmès', wikiname__nl: 'Sophie Wilmès', start_date: '2014-10-11', end_date: '2015-09-22' }
 REYNDERS = { name: 'Didier Reynders', wikiname__nl: 'Didier Reynders', end_date: '2014-10-11' }
-WILRYCX = { name: 'Frank Wilrycx', wikiname__nl: 'Frank Wilrycx', start_date: '2014-07-25', end_date: '2016-04-29' }
+WILRYCX =  { name: 'Frank Wilrycx', wikiname__nl: 'Frank Wilrycx', start_date: '2014-07-25', end_date: '2016-04-29' }
 
 def noko_for(url)
   Nokogiri::HTML(open(url).read)
@@ -36,7 +37,7 @@ def scrape_list(url)
   abort "No rows" if rows.empty?
   rows.each do |tr|
     tds = tr.css('td')
-    data = { 
+    data = {
       name: tds[0].css('a').text,
       wikiname__nl: tds[0].css('a/@title').text,
       party: tds[1].text.tidy,
@@ -54,6 +55,7 @@ def scrape_list(url)
         data[:start_date] = wilmes[:end_date]
         ScraperWiki.save_sqlite([:wikiname__nl, :term, :start_date], wilmes)
         ScraperWiki.save_sqlite([:wikiname__nl, :term, :start_date], reynders)
+
       elsif notes.include? 'werd van 25 juli 2014 tot 29 april 2016 als minister in de regering-Bourgeois vervangen door Frank Wilrycx'
         wilryxc = data.merge(WILRYCX)
         turtelboom_first = data.clone.merge(end_date: wilryxc[:start_date])
