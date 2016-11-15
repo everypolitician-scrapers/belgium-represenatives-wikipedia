@@ -19,7 +19,7 @@ end
 @MONTHS = %w(0 1 2 3 april mei juni juli 8 september oktober 11 12)
 def date_from(str)
   d, m, y = str.split(/ /)
-  return "%d-%02d-%02d" % [y, @MONTHS.find_index(m), d]
+  return "%d-%02d-%02d" % [y, @MONTHS.find_index(m), d] rescue abort "Unknown month: #{m}"
 end
 
 # Hard-code some hard-to-parse mid-term changes
