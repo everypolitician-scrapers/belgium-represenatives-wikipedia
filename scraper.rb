@@ -45,7 +45,6 @@ def scrape_list(url)
       language_group: tds[3].text.tidy,
       term: '54',
       start_date: '2014-06-19',
-      source: url,
     }
 
     if tds[4] && !(notes = tds[4].text.tidy).empty?
