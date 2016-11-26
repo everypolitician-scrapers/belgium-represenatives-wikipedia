@@ -1,14 +1,10 @@
 #!/bin/env ruby
 # encoding: utf-8
 
-require 'scraperwiki'
 require 'nokogiri'
 require 'open-uri'
-require 'colorize'
-
+require 'scraperwiki'
 require 'pry'
-require 'open-uri/cached'
-OpenURI::Cache.cache_path = '.cache'
 
 class String
   def tidy
