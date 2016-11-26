@@ -49,14 +49,14 @@ def scrape_list(url)
     }
 
     if tds[4] && !(notes = tds[4].text.tidy).empty?
-      if notes.include? 'vervangt vanaf 22 september 2015 Sophie Wilmès, die in opvolging minister werd in de regering-Michel. Wilmès zelf verving vanaf 11 oktober 2014 Didier Reynders, die minister in de regering-Michel geworden was'
+      if notes.include? 'vervangt vanaf 22 september 2015 Sophie Wilmès, die minister wordt in de federale regering-Michel. Wilmès zelf verving vanaf 11 oktober 2014 Didier Reynders, die ook minister in de regering-Michel werd'
         wilmes = data.merge(WILMES)
         reynders = data.merge(REYNDERS)
         data[:start_date] = wilmes[:end_date]
         ScraperWiki.save_sqlite([:wikiname__nl, :term, :start_date], wilmes)
         ScraperWiki.save_sqlite([:wikiname__nl, :term, :start_date], reynders)
 
-      elsif notes.include? 'werd van 30 juli 2014 tot 29 april 2016 als minister in de Vlaamse Regering vervangen door Frank Wilrycx'
+      elsif notes.include? 'werd van 30 juli 2014 tot 29 april 2016 als minister in de Vlaamse regering-Bourgeois vervangen door Frank Wilrycx'
         wilryxc = data.merge(WILRYCX)
         turtelboom_first = data.clone.merge(end_date: wilryxc[:start_date])
         data[:start_date] = wilryxc[:end_date]
