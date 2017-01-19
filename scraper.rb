@@ -12,7 +12,7 @@ class String
   end
 end
 
-@MONTHS = %w(0 1 2 3 april mei juni juli 8 september oktober november 12)
+@MONTHS = %w(0 januari 2 3 april mei juni juli 8 september oktober november 12)
 def date_from(str)
   d, m, y = str.split(/ /)
   return "%d-%02d-%02d" % [y, @MONTHS.find_index(m), d] rescue abort "Unknown month: #{m}"
@@ -79,6 +79,18 @@ def scrape_list(url)
         })
         data[:start_date] = replaced[:end_date] = date
         ScraperWiki.save_sqlite([:wikiname__nl, :term, :start_date], replaced)
+
+      # Annick Lambrecht replacing Johan Vande Lanotte
+      elsif notes.include?('Vervangt vanaf 12 januari 2017 Johan Vande Lanotte, die voltijds burgemeester van Oostende wordt')
+        date = date_from(notes[/vervangt vanaf (\d+ \w+ \d+)/i, 1]) or raise binding.pry
+        who = tds[4].css('a').first
+        replaced = data.merge({
+          name: who.text,
+          wikiname__nl: who.attr('title'),
+        })
+        data[:start_date] = replaced[:end_date] = date
+        ScraperWiki.save_sqlite([:wikiname__nl, :term, :start_date], replaced)
+
       else
         warn "Unparsed notes: #{notes}"
       end
