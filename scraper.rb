@@ -92,5 +92,5 @@ def scrape_list(url)
 end
 
 # Always start empty
-ScraperWiki.sqliteexecute('DELETE FROM data') rescue nil
+ScraperWiki.sqliteexecute('DROP TABLE data') rescue nil
 scrape_list('https://nl.wikipedia.org/wiki/Kamer_van_Volksvertegenwoordigers_(samenstelling_2014-2019)')
