@@ -86,7 +86,7 @@ def scrape_list(url)
       end
     end
 
-    # puts data.reject { |k, v| v.to_s.empty? }.sort_by { |k, v| k }.to_h
+    puts data.reject { |_, v| v.to_s.empty? }.sort_by { |k, _| k }.to_h if ENV['MORPH_DEBUG']
     ScraperWiki.save_sqlite(%i(wikiname__nl term start_date), data)
   end
 end
