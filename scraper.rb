@@ -6,7 +6,7 @@ require 'scraped'
 require 'scraperwiki'
 require 'pry'
 
-@MONTHS = %w[0 januari 2 maart april mei juni juli 8 september oktober november 12]
+@MONTHS = %w[0 januari 2 maart april mei juni juli augustus september oktober november 12]
 def date_from(str)
   d, m, y = str.split(/ /)
   return '%d-%02d-%02d' % [y, @MONTHS.find_index(m), d] rescue abort "Unknown month: #{m}"
