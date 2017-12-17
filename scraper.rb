@@ -64,17 +64,8 @@ def scrape_list(url)
         ScraperWiki.save_sqlite(%i[wikiname__nl term start_date], wil_m)
         ScraperWiki.save_sqlite(%i[wikiname__nl term start_date], turtelboom_first)
 
-      elsif notes.include?('vervangt vanaf')
-        date = date_from(notes[/vervangt vanaf (\d+ \w+ \d+)/, 1]) or raise binding.pry
-        who = tds[4].css('a').first
-        replaced = data.merge(name:         who.text,
-                              wikiname__nl: who.attr('title'))
-        data[:start_date] = replaced[:end_date] = date
-        ScraperWiki.save_sqlite(%i[wikiname__nl term start_date], replaced)
-
-      # Annick Lambrecht replacing Johan Vande Lanotte
-      elsif notes.include?('Vervangt vanaf 12 januari 2017 Johan Vande Lanotte, die voltijds burgemeester van Oostende wordt')
-        date = date_from(notes[/vervangt vanaf (\d+ \w+ \d+)/i, 1]) or raise binding.pry
+      elsif notes.downcase.include?('vervangt vanaf')
+        date = date_from(notes[/vervangt vanaf (\d+ \w+ \d+)/i, 1])
         who = tds[4].css('a').first
         replaced = data.merge(name:         who.text,
                               wikiname__nl: who.attr('title'))
