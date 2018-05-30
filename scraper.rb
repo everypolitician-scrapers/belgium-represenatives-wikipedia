@@ -18,7 +18,7 @@ end
 
 def scrape_list(url)
   noko = noko_for(url)
-  rows = noko.xpath('//h2[contains(.,"Lijst van volksvertegenwoordigers")]/following-sibling::table[1]/tr[td]')
+  rows = noko.xpath('//h2[contains(.,"Lijst van volksvertegenwoordigers")]/following-sibling::table[1]//tr[td]')
   abort 'No rows' if rows.empty?
   rows.each do |tr|
     tds = tr.css('td')
